@@ -17,6 +17,16 @@ const allowedOrigins = config.CORS_ORIGIN.split(",")
   .map((origin) => origin.trim())
   .filter(Boolean);
 const isDev = config.NODE_ENV !== "production";
+const vercelAppOriginPattern = /^https:\/\/[a-z0-9-]+\.vercel\.app$/i;
+
+function isAllowedProductionOrigin(origin?: string) {
+  if (!origin) {
+    return true;
+  }
+
+  return allowedOrigins.includes(origin) || vercelAppOriginPattern.test(origin);
+}
+
 const corsOptions: cors.CorsOptions = {
   origin: (origin, callback) => {
     // In development allow any LAN/localhost origin to avoid preflight failures.
@@ -25,7 +35,7 @@ const corsOptions: cors.CorsOptions = {
       return;
     }
 
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (isAllowedProductionOrigin(origin)) {
       callback(null, true);
       return;
     }

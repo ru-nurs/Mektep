@@ -36,6 +36,8 @@ AI_PROVIDER=gemini
 GEMINI_API_KEY=your-gemini-key
 ```
 
+The API also accepts Vercel preview and branch domains that match `https://*.vercel.app`.
+
 ## Vercel Web
 
 Create a project from the GitHub repo. Vercel can read `vercel.json`.
