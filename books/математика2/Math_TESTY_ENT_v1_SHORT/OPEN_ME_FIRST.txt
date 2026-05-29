@@ -1,0 +1,11 @@
+MATH TESTS ENT v1 SHORT
+
+Файлы имеют короткие имена для Windows:
+t01_b.md - тема 01, базовый
+t01_m.md - тема 01, средний
+t01_h.md - тема 01, высокий
+...
+t18_h.md
+
+Расшифровка тем: file_map.csv
+Ответы: answers.csv
