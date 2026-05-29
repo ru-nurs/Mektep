@@ -729,7 +729,19 @@ async function importPackage(pkg: TestPackage, orderIndex: number) {
 }
 
 async function main() {
-  const packages = await findPackages();
+  const onlySubjects = (process.env.ENT_IMPORT_ONLY || process.argv.slice(2).join(","))
+    .split(",")
+    .map((item) => item.trim().toLowerCase())
+    .filter(Boolean);
+
+  const packages = (await findPackages()).filter((pkg) => {
+    if (!onlySubjects.length) return true;
+
+    const title = subjectTitle(pkg.subjectRoot).toLowerCase();
+    const folder = path.basename(pkg.subjectRoot).replace(/\d+$/, "").trim().toLowerCase();
+    return onlySubjects.some((subject) => title.includes(subject) || folder.includes(subject));
+  });
+
   console.log(`Found ${packages.length} ENT book packages.`);
 
   for (const [index, pkg] of packages.entries()) {
