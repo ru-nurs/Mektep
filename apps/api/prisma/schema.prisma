@@ -1,0 +1,237 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String            @id @default(uuid())
+  email          String            @unique
+  username       String            @unique
+  fullName       String?
+  passwordHash   String
+  avatarUrl      String?
+  role           Role              @default(STUDENT)
+  xp             Int               @default(0)
+  streakDays     Int               @default(0)
+  lastActivityAt DateTime?
+  createdAt      DateTime          @default(now())
+
+  progress       UserProgress[]
+  quizAnswers    UserQuizAnswer[]
+  achievements   UserAchievement[]
+  aiChatSessions AiChatSession[]
+  aiMemory       AiStudentMemory?
+
+  @@map("users")
+}
+
+enum Role {
+  STUDENT
+  TEACHER
+  ADMIN
+}
+
+model Course {
+  id          String     @id @default(uuid())
+  slug        String     @unique
+  title       String
+  description String?
+  coverUrl    String?
+  language    String     @default("ru")
+  difficulty  Difficulty @default(BEGINNER)
+  category    String?
+  isPublished Boolean    @default(false)
+  orderIndex  Int        @default(0)
+  createdAt   DateTime   @default(now())
+
+  modules     Module[]
+
+  @@map("courses")
+}
+
+enum Difficulty {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+model Module {
+  id          String   @id @default(uuid())
+  courseId    String
+  title       String
+  description String?
+  orderIndex  Int      @default(0)
+
+  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessons     Lesson[]
+
+  @@map("modules")
+}
+
+model Lesson {
+  id          String       @id @default(uuid())
+  moduleId    String
+  title       String
+  slug        String
+  lessonType  LessonType   @default(THEORY)
+  xpReward    Int          @default(10)
+  durationMin Int          @default(5)
+  orderIndex  Int          @default(0)
+  isPublished Boolean      @default(false)
+
+  module      Module       @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  blocks      LessonBlock[]
+  questions   QuizQuestion[]
+  progress    UserProgress[]
+  aiChatSessions AiChatSession[]
+
+  @@map("lessons")
+}
+
+enum LessonType {
+  THEORY
+  PRACTICE
+  QUIZ
+  VIDEO
+}
+
+model LessonBlock {
+  id         String   @id @default(uuid())
+  lessonId   String
+  blockType  String
+  content    Json
+  orderIndex Int      @default(0)
+
+  lesson     Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@map("lesson_blocks")
+}
+
+model QuizQuestion {
+  id           String       @id @default(uuid())
+  lessonId     String
+  question     String
+  questionType QuestionType @default(SINGLE)
+  options      Json?
+  explanation  String?
+  orderIndex   Int          @default(0)
+
+  lesson       Lesson       @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  answers      UserQuizAnswer[]
+
+  @@map("quiz_questions")
+}
+
+enum QuestionType {
+  SINGLE
+  MULTIPLE
+  TEXT_INPUT
+}
+
+model UserProgress {
+  id             String         @id @default(uuid())
+  userId         String
+  lessonId       String
+  status         ProgressStatus @default(NOT_STARTED)
+  score          Int            @default(0)
+  attempts       Int            @default(0)
+  completedAt    DateTime?
+  lastAccessedAt DateTime       @default(now())
+
+  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson         Lesson         @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+  @@map("user_progress")
+}
+
+enum ProgressStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+}
+
+model UserQuizAnswer {
+  id         String       @id @default(uuid())
+  userId     String
+  questionId String
+  answer     Json
+  isCorrect  Boolean
+  answeredAt DateTime     @default(now())
+
+  user       User         @relation(fields: [userId], references: [id])
+  question   QuizQuestion @relation(fields: [questionId], references: [id])
+
+  @@map("user_quiz_answers")
+}
+
+model Achievement {
+  id          String            @id @default(uuid())
+  code        String            @unique
+  title       String
+  description String?
+  icon        String?
+  xpBonus     Int               @default(0)
+
+  users       UserAchievement[]
+
+  @@map("achievements")
+}
+
+model UserAchievement {
+  userId        String
+  achievementId String
+  earnedAt      DateTime      @default(now())
+
+  user          User          @relation(fields: [userId], references: [id])
+  achievement   Achievement   @relation(fields: [achievementId], references: [id])
+
+  @@id([userId, achievementId])
+  @@map("user_achievements")
+}
+
+model AiChatSession {
+  id        String   @id
+  userId    String   @map("user_id")
+  lessonId  String?  @map("lesson_id")
+  title     String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @map("updated_at")
+
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson    Lesson?         @relation(fields: [lessonId], references: [id], onDelete: SetNull)
+  messages  AiChatMessage[]
+
+  @@index([userId, updatedAt])
+  @@map("ai_chat_sessions")
+}
+
+model AiChatMessage {
+  id        String   @id
+  sessionId String   @map("session_id")
+  role      String
+  content   String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  session   AiChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId, createdAt])
+  @@map("ai_chat_messages")
+}
+
+model AiStudentMemory {
+  userId        String   @id @map("user_id")
+  summary       String   @default("")
+  facts         Json     @default("[]")
+  weakTopics    Json     @default("[]") @map("weak_topics")
+  strongTopics  Json     @default("[]") @map("strong_topics")
+  lastUpdatedAt DateTime @default(now()) @map("last_updated_at")
+
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("ai_student_memories")
+}

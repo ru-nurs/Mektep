@@ -1,0 +1,15 @@
+{
+  "name": "ai-mektep",
+  "private": true,
+  "workspaces": ["apps/*"],
+  "scripts": {
+    "dev": "concurrently \"npm run dev -w api\" \"npm run dev -w web\"",
+    "db:migrate": "npm run migrate -w api",
+    "db:seed": "npm run seed -w api",
+    "import:drive": "npm run import -w api",
+    "build": "npm run build -w api && npm run build -w web"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.1"
+  }
+}
