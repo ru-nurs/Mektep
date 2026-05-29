@@ -4,7 +4,7 @@ services:
     runtime: node
     plan: free
     rootDir: .
-    buildCommand: npm ci --include=dev && npm run build -w api
+    buildCommand: npm ci --include=dev && NODE_OPTIONS=--max-old-space-size=1024 npm run build -w api
     startCommand: npm run start -w api
     healthCheckPath: /health
     envVars:
@@ -12,6 +12,8 @@ services:
         value: production
       - key: HOST
         value: 0.0.0.0
+      - key: NODE_OPTIONS
+        value: --max-old-space-size=1024
       - key: DATABASE_URL
         sync: false
       - key: JWT_SECRET
