@@ -3,7 +3,6 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getCourse } from "../api/courses.api";
 import SiteHeader from "../components/layout/SiteHeader";
-import { getDifficultyMeta } from "../lib/courseUi";
 import { Course, Lesson, Module } from "../types";
 
 function extractTopicFromTitle(title: string) {
@@ -79,14 +78,12 @@ export default function CourseDetail() {
     return (
       <div className="min-h-screen bg-[#f7fbf7]">
         <SiteHeader />
-        <main className="container mx-auto px-4 py-8">
-          <article className="rounded-lg border border-slate-200 bg-white p-6">Курс не найден</article>
+        <main className="flex min-h-[calc(100vh-64px)] items-center justify-center px-4">
+          <div className="text-center text-lg font-semibold text-slate-500">Загрузка</div>
         </main>
       </div>
     );
   }
-
-  const difficulty = getDifficultyMeta(course.difficulty);
 
   return (
     <div className="min-h-screen bg-[#f7fbf7]">
@@ -104,10 +101,7 @@ export default function CourseDetail() {
 
         <section className="mb-6 grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
           <div className="rounded-lg border border-emerald-100 bg-white p-6">
-            <span className={`inline-flex rounded-md border px-2 py-1 text-xs font-semibold ${difficulty.pillClass}`}>
-              {difficulty.label}
-            </span>
-            <h1 className="mt-4 text-3xl font-bold text-slate-950 md:text-4xl">{course.title}</h1>
+            <h1 className="text-3xl font-bold text-slate-950 md:text-4xl">{course.title}</h1>
             <p className="mt-3 max-w-3xl text-slate-500">{course.description}</p>
           </div>
 

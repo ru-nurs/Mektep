@@ -65,7 +65,11 @@ export default function LessonView() {
   const blocks = useMemo(() => data?.lesson?.blocks || [], [data]);
 
   if (!data?.lesson) {
-    return <p className="p-8">Урок не найден</p>;
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#f7fbf7] px-4">
+        <div className="text-center text-lg font-semibold text-slate-500">Загрузка</div>
+      </div>
+    );
   }
 
   const courseTitle = data.lesson.module?.course?.title || "Курс";
