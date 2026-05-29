@@ -1,0 +1,6 @@
+Geography TESTY ENT v1 SHORT
+
+Files: t01_b.md ... t21_h.md
+b = basic, m = middle, h = high.
+Each file contains 40 tasks: 25 single, 5 context, 5 multi, 5 matching.
+file_map.csv maps files to topic names. answers.csv contains answers.
