@@ -5,9 +5,11 @@
   "main": "dist/src/index.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
-    "build": "tsc",
+    "build": "prisma generate && tsc",
     "start": "node dist/src/index.js",
     "migrate": "prisma migrate dev",
+    "migrate:deploy": "prisma migrate deploy",
+    "db:push": "prisma db push",
     "generate": "prisma generate",
     "import": "ts-node scripts/import-drive.ts",
     "import:books": "ts-node scripts/import-books.ts",

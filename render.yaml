@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: ai-mektep-api
+    runtime: node
+    plan: free
+    rootDir: .
+    buildCommand: npm ci && npm run build -w api
+    startCommand: npm run start -w api
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: HOST
+        value: 0.0.0.0
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: CORS_ORIGIN
+        sync: false
+      - key: AI_PROVIDER
+        value: gemini
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: PISTON_URL
+        value: http://localhost:2000
